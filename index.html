@@ -16,12 +16,17 @@
 
   <main>
     <h2>Click the buttons to make (or stop) some sound:</h2>
-    <button id="playButton" class="btn-transport" type="button">play</button>
-    <button id="stopButton" class="btn-transport" type="button">stop</button>
+    <button id="playButton" class="btn-transport play" type="button">play</button>
+    <button id="stopButton" class="btn-transport stop" type="button">stop</button>
     <fieldset>
       <legend>Use slider to control pitch shift</legend>
       <label id="pitchShiftLabel" for="pitchShiftSlider">0</label>
       <input type="range" id="pitchShiftSlider" name="pitchShiftSlider" min="-12" max="12" step="0.5" />
+    </fieldset>
+    <fieldset>
+      <legend>Use slider to control location in audio file</legend>
+      <label id="timeLabel" for="timeSlider">0</label>
+      <input type="range" id="timeSlider" name="timeSlider" min="0" max="120" step="5" value="0" />
     </fieldset>
   </main>
 
@@ -47,7 +52,8 @@
 
     // Sample code to load a sound file
     // NOTE: This sound file is not played in this script
-    var clave = new Tone.Player( 'audio/clave.mp3' ).toMaster();
+    // var clave = new Tone.Player( 'audio/clave.mp3' ).toMaster();
+    var song = new Tone.Player( 'audio/when it rained v7.wav' ).connect( pitchShift );
 
     // Bind slider value to pitch shift amount
     // Every change in slider value triggers change in pitch shift
@@ -63,13 +69,29 @@
       pitchShiftLabel.innerHTML = pitchShiftSlider.value;
     } );
 
+    // create slider that adjusts time in song
+    timeSlider.addEventListener( 'input', function () 
+    {
+      song.seek( timeSlider.value )
+      timeLabel.innerHTML = timeSlider.value
+    } )
+
+    var timeUpdateInterval;
+
     // The following block of code will run when the play button is clicked
     document.querySelector( '#playButton' ).onclick = function ()
     {
       console.log( 'The play button has been clicked.' );
 
       // Play a middle C, which will sound until the stop button is clicked
-      synth.triggerAttack( 'C4' );
+      // synth.triggerAttack( 'C4' );
+      song.start();
+      timeUpdateInterval = setInterval( function ()
+      {
+        var newTime = parseInt( timeLabel.innerHTML ) + 1;
+        timeLabel.innerHTML = newTime;
+        timeSlider.value = newTime;
+      }, 1000 );
     };
 
     // The following block of code will run when the stop button is clicked
@@ -78,7 +100,9 @@
       console.log( 'The stop button has been clicked.' );
 
       // Stop the note from sounding
-      synth.triggerRelease();
+      // synth.triggerRelease();
+      song.stop();
+      clearInterval( timeUpdateInterval );
     };
 
   </script>
