@@ -79,11 +79,11 @@
 
     var timeUpdateInterval
 
-    var loop = new Tone.loop( function ( time )
+    var loop = new Tone.Loop( function ( time )
     {
-      synth.triggerAttackAndRelease( "C4", "8t", time )
-      // synth.triggerAttackAndRelease( "E4", "8t", time + "8t" )
-      // synth.triggerAttackAndRelease( "G4", "8t", time + "8t" + "8t" )
+      synth.triggerAttackRelease( "C4", "8n", time )
+      synth.triggerAttackRelease( "E4", "8t", time + "8t" )
+      synth.triggerAttackRelease( "G4", "8t", time + "8t" + "8t" )
     }, "4n" )
 
     // The following block of code will run when the play button is clicked
@@ -93,7 +93,8 @@
 
       // Play a middle C, which will sound until the stop button is clicked
       // synth.triggerAttack( 'C4' )
-      loop.start()
+      Tone.Transport.start()
+      loop.start( 0 )
 
       // handle seeking
       timeUpdateInterval = setInterval( function ()
