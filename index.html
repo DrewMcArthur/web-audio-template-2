@@ -24,11 +24,6 @@
       <label id="pitchShiftLabel" for="pitchShiftSlider">0</label>
       <input type="range" id="pitchShiftSlider" name="pitchShiftSlider" min="-12" max="12" step="0.5" />
     </fieldset>
-    <fieldset>
-      <legend>Use slider to control location in audio file</legend>
-      <label id="timeLabel" for="timeSlider">0</label>
-      <input type="range" id="timeSlider" name="timeSlider" min="0" max="120" step="5" value="0" />
-    </fieldset>
   </main>
 
   <script src="js/Tone.js"></script>
@@ -51,11 +46,6 @@
       }
     } ).connect( pitchShift )
 
-    // Sample code to load a sound file
-    // NOTE: This sound file is not played in this script
-    // var clave = new Tone.Player( 'audio/clave.mp3' ).toMaster()
-    var song = new Tone.Player( 'audio/when it rained v7.wav' ).connect( pitchShift )
-
     // Bind slider value to pitch shift amount
     // Every change in slider value triggers change in pitch shift
     // It's silly to pitch shift a synthesizer, right?
@@ -70,20 +60,11 @@
       pitchShiftLabel.innerHTML = pitchShiftSlider.value
     } )
 
-    // create slider that adjusts time in song
-    timeSlider.addEventListener( 'input', function () 
-    {
-      song.seek( timeSlider.value )
-      timeLabel.innerHTML = timeSlider.value
-    } )
-
-    var timeUpdateInterval
-
     var loop = new Tone.Loop( function ( time )
     {
       synth.triggerAttackRelease( "C4", "8n", time )
-      synth.triggerAttackRelease( "E4", "8t", time + "8t" )
-      synth.triggerAttackRelease( "G4", "8t", time + "8t" + "8t" )
+      synth.triggerAttackRelease( "E4", "8t", Tone.Time( Tone.Time.valueOf( time ) + Tone.Time.valueOf( "8t" ) ) )
+      synth.triggerAttackRelease( "G4", "8t", Tone.Time( Tone.Time.valueOf( time ) + Tone.Time.valueOf( "8t" ) + Tone.Time.valueOf( "8t" ) ) )
     }, "4n" )
 
     // The following block of code will run when the play button is clicked
@@ -93,16 +74,9 @@
 
       // Play a middle C, which will sound until the stop button is clicked
       // synth.triggerAttack( 'C4' )
+      Tone.context.resume()
       Tone.Transport.start()
-      loop.start( 0 )
-
-      // handle seeking
-      timeUpdateInterval = setInterval( function ()
-      {
-        var newTime = parseInt( timeLabel.innerHTML ) + 1
-        timeLabel.innerHTML = newTime
-        timeSlider.value = newTime
-      }, 1000 )
+      loop.start()
     }
 
     document.querySelector( '#transportButton' ).onclick = function ()
@@ -121,10 +95,8 @@
     {
       console.log( 'The stop button has been clicked.' )
 
-      // Stop the note from sounding
-      // synth.triggerRelease()
+      // Stop the loop
       loop.stop()
-      clearInterval( timeUpdateInterval )
     }
 
   </script>
