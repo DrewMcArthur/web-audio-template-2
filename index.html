@@ -18,6 +18,7 @@
     <h2>Click the buttons to make (or stop) some sound:</h2>
     <button id="playButton" class="btn-transport play" type="button">play</button>
     <button id="stopButton" class="btn-transport stop" type="button">stop</button>
+    <button id="transportButton" class="btn-transport transport" type="button">toggle transport</button>
     <fieldset>
       <legend>Use slider to control pitch shift</legend>
       <label id="pitchShiftLabel" for="pitchShiftSlider">0</label>
@@ -35,7 +36,7 @@
   <script>
 
     // Create a pitch shifter and connect its output to the master out
-    var pitchShift = new Tone.PitchShift().toMaster();
+    var pitchShift = new Tone.PitchShift().toMaster()
 
     // Create a synth and connect it to the pitch shifter
     var synth = new Tone.Synth( {
@@ -48,26 +49,26 @@
         sustain: 0.5,
         release: 1
       }
-    } ).connect( pitchShift );
+    } ).connect( pitchShift )
 
     // Sample code to load a sound file
     // NOTE: This sound file is not played in this script
-    // var clave = new Tone.Player( 'audio/clave.mp3' ).toMaster();
-    var song = new Tone.Player( 'audio/when it rained v7.wav' ).connect( pitchShift );
+    // var clave = new Tone.Player( 'audio/clave.mp3' ).toMaster()
+    var song = new Tone.Player( 'audio/when it rained v7.wav' ).connect( pitchShift )
 
     // Bind slider value to pitch shift amount
     // Every change in slider value triggers change in pitch shift
     // It's silly to pitch shift a synthesizer, right?
     // But what else could we pitch shift?
-    var pitchShiftLabel = document.querySelector( '#pitchShiftLabel' );
-    var pitchShiftSlider = document.querySelector( '#pitchShiftSlider' );
+    var pitchShiftLabel = document.querySelector( '#pitchShiftLabel' )
+    var pitchShiftSlider = document.querySelector( '#pitchShiftSlider' )
     pitchShiftSlider.addEventListener( 'input', function ()
     {
       // assign slider value to pitch shift amount (in semitones)
-      pitchShift.pitch = pitchShiftSlider.value;
+      pitchShift.pitch = pitchShiftSlider.value
       // update slider label
-      pitchShiftLabel.innerHTML = pitchShiftSlider.value;
-    } );
+      pitchShiftLabel.innerHTML = pitchShiftSlider.value
+    } )
 
     // create slider that adjusts time in song
     timeSlider.addEventListener( 'input', function () 
@@ -76,34 +77,54 @@
       timeLabel.innerHTML = timeSlider.value
     } )
 
-    var timeUpdateInterval;
+    var timeUpdateInterval
+
+    var loop = new Tone.loop( function ( time )
+    {
+      synth.triggerAttackAndRelease( "C4", "8t", time )
+      // synth.triggerAttackAndRelease( "E4", "8t", time + "8t" )
+      // synth.triggerAttackAndRelease( "G4", "8t", time + "8t" + "8t" )
+    }, "4n" )
 
     // The following block of code will run when the play button is clicked
     document.querySelector( '#playButton' ).onclick = function ()
     {
-      console.log( 'The play button has been clicked.' );
+      console.log( 'The play button has been clicked.' )
 
       // Play a middle C, which will sound until the stop button is clicked
-      // synth.triggerAttack( 'C4' );
-      song.start();
+      // synth.triggerAttack( 'C4' )
+      loop.start()
+
+      // handle seeking
       timeUpdateInterval = setInterval( function ()
       {
-        var newTime = parseInt( timeLabel.innerHTML ) + 1;
-        timeLabel.innerHTML = newTime;
-        timeSlider.value = newTime;
-      }, 1000 );
-    };
+        var newTime = parseInt( timeLabel.innerHTML ) + 1
+        timeLabel.innerHTML = newTime
+        timeSlider.value = newTime
+      }, 1000 )
+    }
+
+    document.querySelector( '#transportButton' ).onclick = function ()
+    {
+      console.log( "Transport button clicked!" )
+      // start the audio context
+      Tone.context.resume()
+
+      // toggle transport, whatever that is. something to do with loops
+      Tone.Transport.toggle()
+      console.log( "Transport.state = " + Tone.Transport.state )
+    }
 
     // The following block of code will run when the stop button is clicked
     document.querySelector( '#stopButton' ).onclick = function ()
     {
-      console.log( 'The stop button has been clicked.' );
+      console.log( 'The stop button has been clicked.' )
 
       // Stop the note from sounding
-      // synth.triggerRelease();
-      song.stop();
-      clearInterval( timeUpdateInterval );
-    };
+      // synth.triggerRelease()
+      loop.stop()
+      clearInterval( timeUpdateInterval )
+    }
 
   </script>
 
