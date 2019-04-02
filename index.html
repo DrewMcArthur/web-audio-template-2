@@ -60,23 +60,21 @@
       pitchShiftLabel.innerHTML = pitchShiftSlider.value
     } )
 
-    var loop = new Tone.Loop( function ( time )
-    {
-      synth.triggerAttackRelease( "C4", "8n", time )
-      synth.triggerAttackRelease( "E4", "8t", Tone.Time( Tone.Time.valueOf( time ) + Tone.Time.valueOf( "8t" ) ) )
-      synth.triggerAttackRelease( "G4", "8t", Tone.Time( Tone.Time.valueOf( time ) + Tone.Time.valueOf( "8t" ) + Tone.Time.valueOf( "8t" ) ) )
-    }, "4n" )
+    var noteLength = "8t"
+    var loopLength = "2n"
+    var loopC = new Tone.Loop( function ( time ) { synth.triggerAttackRelease( "C3", noteLength, time ) }, loopLength )
+    var loopE = new Tone.Loop( function ( time ) { synth.triggerAttackRelease( "E3", noteLength, time ) }, loopLength )
+    var loopG = new Tone.Loop( function ( time ) { synth.triggerAttackRelease( "G3", noteLength, time ) }, loopLength )
 
     // The following block of code will run when the play button is clicked
     document.querySelector( '#playButton' ).onclick = function ()
     {
       console.log( 'The play button has been clicked.' )
 
-      // Play a middle C, which will sound until the stop button is clicked
-      // synth.triggerAttack( 'C4' )
-      Tone.context.resume()
-      Tone.Transport.start()
-      loop.start()
+      // Play a loop
+      loopC.start()
+      loopE.start( "8t" )
+      loopG.start( "28t" )
     }
 
     document.querySelector( '#transportButton' ).onclick = function ()
